@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Satya X Co</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<style>
+body { background: linear-gradient(#000,#0a0a0a); }
+.card { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius: 16px; transition: .3s;}
+.card:hover { transform: scale(1.03); }
+.btn { border-radius: 999px; transition: .3s; }
+.btn:hover { transform: scale(1.05); }
+input { color:black; }
+</style>
+
+</head>
+
+<body class="text-white">
+
+<!-- NAV -->
+<div class="flex justify-between items-center px-6 py-4 border-b border-gray-800">
+
+  <div class="flex items-center gap-3 cursor-pointer" onclick="location.href='index.html'">
+    <img src="images/final logo.png" class="w-10">
+    <h1 class="text-lg font-semibold">Satya X Co</h1>
+  </div>
+
+  <button onclick="toggleCart()" class="btn bg-white text-black px-4 py-1">
+    Cart (<span id="cartCount">0</span>)
+  </button>
+
+</div>
+
+<!-- PRODUCTS -->
+<div id="products" class="grid grid-cols-1 md:grid-cols-3 gap-8 p-8"></div>
+
+<!-- CART -->
+<div id="cartPanel" class="fixed right-0 top-0 w-80 h-full bg-black/90 p-5 hidden z-50 overflow-y-auto">
+
+  <h2 class="text-lg mb-3">Cart</h2>
+  <div id="cartItems"></div>
+
+  <!-- ADDRESS FORM -->
+  <div class="mt-4">
+    <input id="name" placeholder="Full Name" class="w-full p-2 mb-2 rounded">
+    <input id="phone" placeholder="Phone Number" class="w-full p-2 mb-2 rounded">
+    <textarea id="address" placeholder="Full Address" class="w-full p-2 mb-2 rounded"></textarea>
+  </div>
+
+  <button onclick="orderCart()" class="btn bg-green-500 w-full mt-3 py-2">
+    Order All
+  </button>
+
+  <button onclick="clearCart()" class="btn bg-red-500 w-full mt-2 py-2">
+    Clear
+  </button>
+
+  <button onclick="toggleCart()" class="mt-2 w-full">
+    Close
+  </button>
+
+</div>
+
+<!-- POPUP -->
+<div id="popup" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center">
+
+  <div class="bg-[#111] p-6 w-[95%] max-w-md rounded-2xl">
+
+    <div onclick="closePopup()" class="absolute top-5 right-6 cursor-pointer">✖</div>
+
+    <img id="popupImg"
+      class="max-h-[60vh] w-full object-contain"
+      onmousemove="zoomImage(event)"
+      onmouseleave="resetZoom()">
+
+    <h2 id="pname" class="text-center mt-4"></h2>
+    <p id="pprice" class="text-center text-gray-400"></p>
+
+    <button onclick="addToCart(cur)" class="btn bg-white text-black w-full mt-4 py-2">
+      Add to Cart
+    </button>
+
+    <button id="orderBtn" class="btn bg-blue-500 w-full mt-2 py-2">
+      Buy Now
+    </button>
+
+  </div>
+</div>
+
+<script>
+
+// FIREBASE
+const firebaseConfig = {
+  apiKey: "AIzaSyAPUtC0xz_L8Sw3GZp7BiZBVbot1bXNaoo",
+  authDomain: "satya-store-f8895.firebaseapp.com",
+  projectId: "satya-store-f8895"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let allProducts=[], cart=[], cur;
+
+// LOAD
+function loadProducts(){
+  db.collection("PRODUCTS").get().then(snap=>{
+    allProducts=[];
+    snap.forEach(d=>allProducts.push({...d.data(),id:d.id}));
+    showProducts(allProducts);
+  });
+}
+
+// SHOW
+function showProducts(list){
+  products.innerHTML="";
+  list.forEach((p,i)=>{
+    products.innerHTML+=`
+      <div class="card p-4">
+        <img src="${p.images[0]}" onclick="openP(${i})"
+        class="w-full h-48 object-cover rounded-xl mb-3 cursor-pointer">
+
+        <h2>${p.name}</h2>
+        <p class="text-gray-400">₹${p.price}</p>
+
+        <button onclick="addToCart(${i})"
+        class="btn bg-white text-black w-full mt-3 py-2">
+        Add to Cart
+        </button>
+
+        <button onclick="orderNow('${p.name}',${p.price})"
+        class="btn bg-green-500 w-full mt-2 py-2">
+        Order Now
+        </button>
+      </div>
+    `;
+  });
+}
+
+// POPUP
+function openP(i){
+  cur=allProducts[i];
+  popup.classList.remove("hidden");
+
+  popupImg.src=cur.images[0];
+  pname.innerText=cur.name;
+  pprice.innerText="₹"+cur.price;
+
+  orderBtn.onclick=()=>orderNow(cur.name,cur.price);
+}
+
+function closePopup(){
+  popup.classList.add("hidden");
+}
+
+// CART
+function addToCart(i){
+  let item=typeof i==="object"?i:allProducts[i];
+  cart.push(item);
+  updateCart();
+}
+
+function updateCart(){
+  cartItems.innerHTML="";
+  cart.forEach((p,i)=>{
+    cartItems.innerHTML+=`
+      <div class="flex justify-between border-b py-2">
+        ${p.name}
+        <button onclick="removeItem(${i})">❌</button>
+      </div>
+    `;
+  });
+  cartCount.innerText=cart.length;
+}
+
+function removeItem(i){
+  cart.splice(i,1);
+  updateCart();
+}
+
+function clearCart(){
+  cart=[];
+  updateCart();
+}
+
+function toggleCart(){
+  cartPanel.classList.toggle("hidden");
+}
+
+// ORDER SINGLE
+function orderNow(name,price){
+  let msg=`Order Request\nProduct: ${name}\nPrice: ₹${price}`;
+  window.open(`https://wa.me/917558378398?text=${encodeURIComponent(msg)}`);
+}
+
+// ORDER CART WITH ADDRESS
+function orderCart(){
+
+  let name=document.getElementById("name").value;
+  let phone=document.getElementById("phone").value;
+  let address=document.getElementById("address").value;
+
+  if(!name || !phone || !address){
+    alert("Fill all details");
+    return;
+  }
+
+  let msg=`Order Details\n\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\n\nProducts:\n`;
+
+  cart.forEach(p=>{
+    msg+=`${p.name} - ₹${p.price}\n`;
+  });
+
+  window.open(`https://wa.me/917558378398?text=${encodeURIComponent(msg)}`);
+}
+
+// ZOOM
+function zoomImage(e){
+  let r=popupImg.getBoundingClientRect();
+  let x=(e.clientX-r.left)/r.width*100;
+  let y=(e.clientY-r.top)/r.height*100;
+  popupImg.style.transformOrigin=x+"% "+y+"%";
+  popupImg.style.transform="scale(2)";
+}
+function resetZoom(){ popupImg.style.transform="scale(1)"; }
+
+// INIT
+loadProducts();
+
+</script>
+
+</body>
+</html>

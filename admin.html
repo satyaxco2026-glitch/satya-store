@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Panel</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+</head>
+
+<body class="bg-black text-white p-6">
+
+<h1 class="text-2xl mb-4">Admin Panel</h1>
+
+<!-- FORM -->
+<input id="name" placeholder="Product Name" class="w-full p-2 mb-2 text-black">
+<input id="price" placeholder="Price" class="w-full p-2 mb-2 text-black">
+<input id="category" placeholder="Category" class="w-full p-2 mb-4 text-black">
+
+<div id="imageInputs">
+  <input type="file" class="mb-2"><br>
+  <input type="file" class="mb-2"><br>
+</div>
+
+<button onclick="addImageField()" class="bg-gray-700 px-4 py-2 mt-2">
++ Add Image
+</button>
+
+<button onclick="uploadProduct()" class="bg-yellow-500 text-black px-6 py-2 mt-4">
+Upload Product
+</button>
+
+<button id="updateBtn" onclick="updateProduct()" class="bg-blue-500 px-6 py-2 mt-2 hidden">
+Update Product
+</button>
+
+<hr class="my-6">
+
+<h2 class="text-xl mb-3">All Products</h2>
+<div id="productList"></div>
+
+<script>
+
+// FIREBASE
+const firebaseConfig = {
+  apiKey: "AIzaSyAPUtC0xz_L8Sw3GZp7BiZBVbot1bXNaoo",
+  authDomain: "satya-store-f8895.firebaseapp.com",
+  projectId: "satya-store-f8895"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// IMGBB API
+const API_KEY = "23cbe128f7c1d28acb2bb9dbeb33de71";
+
+// INPUTS
+const nameInput = document.getElementById("name");
+const priceInput = document.getElementById("price");
+const categoryInput = document.getElementById("category");
+const updateBtn = document.getElementById("updateBtn");
+
+let editId = null;
+
+// ADD IMAGE FIELD
+function addImageField(){
+  let div = document.getElementById("imageInputs");
+  let input = document.createElement("input");
+  input.type = "file";
+  input.className = "mb-2";
+  div.appendChild(input);
+}
+
+// UPLOAD PRODUCT
+async function uploadProduct(){
+
+  let name = nameInput.value;
+  let price = priceInput.value;
+  let category = categoryInput.value;
+
+  if(!name || !price || !category){
+    alert("Fill all fields");
+    return;
+  }
+
+  let files = document.querySelectorAll("#imageInputs input[type=file]");
+  let imageUrls = [];
+
+  for(let fileInput of files){
+    let file = fileInput.files[0];
+    if(!file) continue;
+
+    let formData = new FormData();
+    formData.append("image", file);
+
+    let res = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, {
+      method: "POST",
+      body: formData
+    });
+
+    let data = await res.json();
+    imageUrls.push(data.data.display_url);
+  }
+
+  await db.collection("PRODUCTS").add({
+    name,
+    price: Number(price),
+    category: category.toLowerCase(),
+    images: imageUrls
+  });
+
+  alert("Product Uploaded ✅");
+  location.reload();
+}
+
+// LOAD PRODUCTS
+function loadProducts(){
+  productList.innerHTML = "";
+
+  db.collection("PRODUCTS").get().then((snap)=>{
+    snap.forEach((doc)=>{
+      let p = doc.data();
+
+      let imagesHTML = "";
+
+      p.images.forEach((img, index)=>{
+        imagesHTML += `
+          <div class="inline-block mr-2 text-center">
+            <img src="${img}" class="w-20 h-20 object-cover mb-1">
+            <button onclick="deleteImage('${doc.id}', ${index})"
+            class="text-red-400 text-xs">❌</button>
+          </div>
+        `;
+      });
+
+      productList.innerHTML += `
+        <div class="border p-3 mb-4">
+
+          <h3>${p.name}</h3>
+          <p>₹${p.price}</p>
+          <p class="text-gray-400 text-sm">${p.category}</p>
+
+          <div class="mt-2">${imagesHTML}</div>
+
+          <button onclick="editProduct('${doc.id}', \`${p.name}\`, ${p.price}, \`${p.category}\`)"
+          class="bg-blue-500 px-3 py-1 mt-2">Edit</button>
+
+          <button onclick="deleteProduct('${doc.id}')"
+          class="bg-red-500 px-3 py-1 mt-2">Delete</button>
+
+        </div>
+      `;
+    });
+  });
+}
+
+// EDIT PRODUCT
+function editProduct(id, name, price, category){
+
+  editId = id;
+
+  nameInput.value = name;
+  priceInput.value = price;
+  categoryInput.value = category;
+
+  updateBtn.classList.remove("hidden");
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// UPDATE PRODUCT
+function updateProduct(){
+
+  if(!editId){
+    alert("Select product first");
+    return;
+  }
+
+  db.collection("PRODUCTS").doc(editId).update({
+    name: nameInput.value,
+    price: Number(priceInput.value),
+    category: categoryInput.value
+  }).then(()=>{
+    alert("Updated ✅");
+    location.reload();
+  });
+}
+
+// DELETE PRODUCT
+function deleteProduct(id){
+  if(confirm("Delete product?")){
+    db.collection("PRODUCTS").doc(id).delete().then(()=>{
+      loadProducts();
+    });
+  }
+}
+
+// DELETE IMAGE
+function deleteImage(docId, index){
+
+  let ref = db.collection("PRODUCTS").doc(docId);
+
+  ref.get().then((doc)=>{
+    let data = doc.data();
+    let images = data.images;
+
+    if(images.length === 1){
+      alert("At least 1 image required");
+      return;
+    }
+
+    images.splice(index,1);
+
+    ref.update({ images: images }).then(()=>{
+      loadProducts();
+    });
+  });
+}
+
+// INIT
+loadProducts();
+
+</script>
+
+</body>
+</html>
