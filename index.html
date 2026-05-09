@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Satya X Co.</title>
+<title>Satya X Co</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 
@@ -255,21 +255,38 @@ function show(list){
 }
 
 // SEARCH
-search.oninput = ()=>{
+// REPLACE OLD SEARCH CODE WITH THIS
+
+document.getElementById("search").addEventListener("input",()=>{
 
   let val =
-    search.value.toLowerCase();
+    document.getElementById("search")
+    .value
+    .toLowerCase();
 
   let filtered =
-    products.filter((p)=>
+    products.filter((p)=>{
 
-      p.name.toLowerCase().includes(val)
+      let name =
+        p.name
+        ? p.name.toLowerCase()
+        : "";
 
-    );
+      let category =
+        p.category
+        ? p.category.toLowerCase()
+        : "";
+
+      return (
+        name.includes(val) ||
+        category.includes(val)
+      );
+
+    });
 
   show(filtered);
 
-};
+});
 
 // GO SHOP
 function goShop(){
