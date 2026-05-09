@@ -119,7 +119,10 @@ async function uploadProduct(){
 
 // LOAD PRODUCTS
 function loadProducts(){
+  const productList = document.getElementById("productList");
   productList.innerHTML = "";
+  // ... rest of function
+
 
   db.collection("PRODUCTS").get().then((snap)=>{
     snap.forEach((doc)=>{

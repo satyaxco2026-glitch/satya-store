@@ -9,12 +9,35 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <style>
-body { background: linear-gradient(#000,#0a0a0a); }
-.card { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius: 16px; transition: .3s;}
-.card:hover { transform: scale(1.03); }
-.btn { border-radius: 999px; transition: .3s; }
-.btn:hover { transform: scale(1.05); }
-input { color:black; }
+
+body{
+  background:linear-gradient(#000,#0a0a0a);
+}
+
+.card{
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(10px);
+  border-radius:16px;
+  transition:.3s;
+}
+
+.card:hover{
+  transform:scale(1.03);
+}
+
+.btn{
+  border-radius:999px;
+  transition:.3s;
+}
+
+.btn:hover{
+  transform:scale(1.05);
+}
+
+input,textarea{
+  color:black;
+}
+
 </style>
 
 </head>
@@ -24,71 +47,114 @@ input { color:black; }
 <!-- NAV -->
 <div class="flex justify-between items-center px-6 py-4 border-b border-gray-800">
 
-  <div class="flex items-center gap-3 cursor-pointer" onclick="location.href='index.html'">
-    <img src="images/final logo.png" class="w-10">
-    <h1 class="text-lg font-semibold">Satya X Co</h1>
+  <div class="flex items-center gap-3 cursor-pointer"
+  onclick="location.href='index.html'">
+
+    <img src="images/final logo.png"
+    class="w-10">
+
+    <h1 class="text-lg font-semibold">
+      Satya X Co
+    </h1>
+
   </div>
 
-  <button onclick="toggleCart()" class="btn bg-white text-black px-4 py-1">
+  <button onclick="toggleCart()"
+  class="btn bg-white text-black px-4 py-1">
+
     Cart (<span id="cartCount">0</span>)
+
   </button>
 
 </div>
 
 <!-- PRODUCTS -->
-<div id="products" class="grid grid-cols-1 md:grid-cols-3 gap-8 p-8"></div>
+<div id="products"
+class="grid grid-cols-1 md:grid-cols-3 gap-8 p-8">
+</div>
 
 <!-- CART -->
-<div id="cartPanel" class="fixed right-0 top-0 w-80 h-full bg-black/90 p-5 hidden z-50 overflow-y-auto">
+<div id="cartPanel"
+class="fixed right-0 top-0 w-80 h-full bg-black/90 p-5 hidden z-50 overflow-y-auto">
 
-  <h2 class="text-lg mb-3">Cart</h2>
+  <h2 class="text-lg mb-3">
+    Cart / Order
+  </h2>
+
   <div id="cartItems"></div>
 
-  <!-- ADDRESS FORM -->
+  <!-- FORM -->
   <div class="mt-4">
-    <input id="name" placeholder="Full Name" class="w-full p-2 mb-2 rounded">
-    <input id="phone" placeholder="Phone Number" class="w-full p-2 mb-2 rounded">
-    <textarea id="address" placeholder="Full Address" class="w-full p-2 mb-2 rounded"></textarea>
+
+    <input id="name"
+    placeholder="Full Name"
+    class="w-full p-2 mb-2 rounded">
+
+    <input id="phone"
+    placeholder="Phone Number"
+    class="w-full p-2 mb-2 rounded">
+
+    <textarea id="address"
+    placeholder="Full Address"
+    class="w-full p-2 mb-2 rounded"></textarea>
+
   </div>
 
-  <button onclick="orderCart()" class="btn bg-green-500 w-full mt-3 py-2">
-    Order All
+  <button onclick="orderCart()"
+  class="btn bg-green-500 w-full mt-3 py-2">
+    Proceed Order
   </button>
 
-  <button onclick="clearCart()" class="btn bg-red-500 w-full mt-2 py-2">
+  <button onclick="clearCart()"
+  class="btn bg-red-500 w-full mt-2 py-2">
     Clear
   </button>
 
-  <button onclick="toggleCart()" class="mt-2 w-full">
+  <button onclick="toggleCart()"
+  class="mt-2 w-full">
     Close
   </button>
 
 </div>
 
 <!-- POPUP -->
-<div id="popup" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center">
+<div id="popup"
+class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50">
 
-  <div class="bg-[#111] p-6 w-[95%] max-w-md rounded-2xl">
+  <div class="bg-[#111] p-6 w-[95%] max-w-md rounded-2xl relative">
 
-    <div onclick="closePopup()" class="absolute top-5 right-6 cursor-pointer">✖</div>
+    <!-- CLOSE -->
+    <div onclick="closePopup()"
+    class="absolute top-4 right-4 z-50 bg-black/70 w-10 h-10 flex items-center justify-center rounded-full cursor-pointer text-xl">
+      ✖
+    </div>
 
+    <!-- IMAGE -->
     <img id="popupImg"
-      class="max-h-[60vh] w-full object-contain"
-      onmousemove="zoomImage(event)"
-      onmouseleave="resetZoom()">
+    class="max-h-[60vh] w-full object-contain rounded-xl transition duration-300"
+    onmousemove="zoomImage(event)"
+    onmouseleave="resetZoom()">
 
-    <h2 id="pname" class="text-center mt-4"></h2>
-    <p id="pprice" class="text-center text-gray-400"></p>
+    <h2 id="pname"
+    class="text-center mt-4 text-xl font-bold">
+    </h2>
 
-    <button onclick="addToCart(cur)" class="btn bg-white text-black w-full mt-4 py-2">
-      Add to Cart
+    <p id="pprice"
+    class="text-center text-yellow-400 text-lg">
+    </p>
+
+    <button onclick="addToCart(cur)"
+    class="btn bg-white text-black w-full mt-4 py-2">
+      Add To Cart
     </button>
 
-    <button id="orderBtn" class="btn bg-blue-500 w-full mt-2 py-2">
+    <button id="orderBtn"
+    class="btn bg-green-500 w-full mt-2 py-2">
       Buy Now
     </button>
 
   </div>
+
 </div>
 
 <script>
@@ -99,132 +165,341 @@ const firebaseConfig = {
   authDomain: "satya-store-f8895.firebaseapp.com",
   projectId: "satya-store-f8895"
 };
+
 firebase.initializeApp(firebaseConfig);
+
 const db = firebase.firestore();
 
-let allProducts=[], cart=[], cur;
+let allProducts = [];
+let cart = [];
+let cur = null;
+let instantOrder = null;
 
-// LOAD
+// LOAD PRODUCTS
 function loadProducts(){
-  db.collection("PRODUCTS").get().then(snap=>{
-    allProducts=[];
-    snap.forEach(d=>allProducts.push({...d.data(),id:d.id}));
+
+  db.collection("PRODUCTS").get().then((snap)=>{
+
+    allProducts = [];
+
+    snap.forEach((d)=>{
+
+      allProducts.push({
+        ...d.data(),
+        id:d.id
+      });
+
+    });
+
     showProducts(allProducts);
+
   });
+
 }
 
-// SHOW
+// SHOW PRODUCTS
 function showProducts(list){
-  products.innerHTML="";
-  list.forEach((p,i)=>{
-    products.innerHTML+=`
-      <div class="card p-4">
-        <img src="${p.images[0]}" onclick="openP(${i})"
-        class="w-full h-48 object-cover rounded-xl mb-3 cursor-pointer">
 
-        <h2>${p.name}</h2>
-        <p class="text-gray-400">₹${p.price}</p>
+  products.innerHTML = "";
+
+  list.forEach((p,i)=>{
+
+    let currentImg =
+      p.images && p.images.length
+      ? p.images[0]
+      : "";
+
+    products.innerHTML += `
+
+      <div class="card p-4">
+
+        <div class="relative bg-[#0b1220] rounded-xl overflow-hidden">
+
+          <img
+          id="img${i}"
+          src="${currentImg}"
+          onclick="openP(${i})"
+          class="w-full h-[420px] object-contain rounded-xl cursor-pointer">
+
+          ${
+            p.images && p.images.length > 1
+            ? `
+
+            <button
+            onclick="prevImg(event,${i})"
+            class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 px-3 py-1 rounded-full z-20">
+              ❮
+            </button>
+
+            <button
+            onclick="nextImg(event,${i})"
+            class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 px-3 py-1 rounded-full z-20">
+              ❯
+            </button>
+
+            `
+            : ""
+          }
+
+        </div>
+
+        <h2 class="mt-3 text-lg font-semibold">
+          ${p.name}
+        </h2>
+
+        <p class="text-yellow-400 text-lg font-bold">
+          ₹${p.price}
+        </p>
 
         <button onclick="addToCart(${i})"
         class="btn bg-white text-black w-full mt-3 py-2">
-        Add to Cart
+          Add To Cart
         </button>
 
         <button onclick="orderNow('${p.name}',${p.price})"
         class="btn bg-green-500 w-full mt-2 py-2">
-        Order Now
+          Order Now
         </button>
+
       </div>
+
     `;
   });
+
+}
+
+// IMAGE SLIDER
+function nextImg(e,i){
+
+  e.stopPropagation();
+
+  let p = allProducts[i];
+
+  if(!p.images || p.images.length <= 1){
+    return;
+  }
+
+  if(p.currentIndex === undefined){
+    p.currentIndex = 0;
+  }
+
+  p.currentIndex =
+    (p.currentIndex + 1) % p.images.length;
+
+  document.getElementById("img"+i).src =
+    p.images[p.currentIndex];
+
+}
+
+function prevImg(e,i){
+
+  e.stopPropagation();
+
+  let p = allProducts[i];
+
+  if(!p.images || p.images.length <= 1){
+    return;
+  }
+
+  if(p.currentIndex === undefined){
+    p.currentIndex = 0;
+  }
+
+  p.currentIndex =
+    (p.currentIndex - 1 + p.images.length)
+    % p.images.length;
+
+  document.getElementById("img"+i).src =
+    p.images[p.currentIndex];
+
 }
 
 // POPUP
 function openP(i){
-  cur=allProducts[i];
+
+  cur = allProducts[i];
+
   popup.classList.remove("hidden");
 
-  popupImg.src=cur.images[0];
-  pname.innerText=cur.name;
-  pprice.innerText="₹"+cur.price;
+  popupImg.src = cur.images[0];
 
-  orderBtn.onclick=()=>orderNow(cur.name,cur.price);
+  pname.innerText = cur.name;
+
+  pprice.innerText = "₹" + cur.price;
+
+  orderBtn.onclick = ()=>{
+    orderNow(cur.name,cur.price);
+  };
+
 }
 
 function closePopup(){
+
   popup.classList.add("hidden");
+
 }
 
 // CART
 function addToCart(i){
-  let item=typeof i==="object"?i:allProducts[i];
+
+  let item =
+    typeof i === "object"
+    ? i
+    : allProducts[i];
+
   cart.push(item);
+
   updateCart();
+
+  cartPanel.classList.remove("hidden");
+
 }
 
 function updateCart(){
-  cartItems.innerHTML="";
+
+  cartItems.innerHTML = "";
+
   cart.forEach((p,i)=>{
-    cartItems.innerHTML+=`
+
+    cartItems.innerHTML += `
+
       <div class="flex justify-between border-b py-2">
+
         ${p.name}
-        <button onclick="removeItem(${i})">❌</button>
+
+        <button onclick="removeItem(${i})">
+          ❌
+        </button>
+
       </div>
+
     `;
+
   });
-  cartCount.innerText=cart.length;
+
+  cartCount.innerText = cart.length;
+
 }
 
 function removeItem(i){
+
   cart.splice(i,1);
+
   updateCart();
+
 }
 
 function clearCart(){
-  cart=[];
+
+  cart = [];
+
+  instantOrder = null;
+
   updateCart();
+
 }
 
 function toggleCart(){
+
   cartPanel.classList.toggle("hidden");
+
 }
 
-// ORDER SINGLE
+// BUY NOW
 function orderNow(name,price){
-  let msg=`Order Request\nProduct: ${name}\nPrice: ₹${price}`;
-  window.open(`https://wa.me/917558378398?text=${encodeURIComponent(msg)}`);
+
+  instantOrder = {
+    name:name,
+    price:price
+  };
+
+  cartPanel.classList.remove("hidden");
+
 }
 
-// ORDER CART WITH ADDRESS
+// FINAL ORDER
 function orderCart(){
 
-  let name=document.getElementById("name").value;
-  let phone=document.getElementById("phone").value;
-  let address=document.getElementById("address").value;
+  let customerName =
+    document.getElementById("name").value;
 
-  if(!name || !phone || !address){
+  let phone =
+    document.getElementById("phone").value;
+
+  let address =
+    document.getElementById("address").value;
+
+  if(!customerName || !phone || !address){
+
     alert("Fill all details");
+
     return;
+
   }
 
-  let msg=`Order Details\n\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\n\nProducts:\n`;
+  let msg =
+`Order Details
 
-  cart.forEach(p=>{
-    msg+=`${p.name} - ₹${p.price}\n`;
-  });
+Name: ${customerName}
+Phone: ${phone}
+Address: ${address}
 
-  window.open(`https://wa.me/917558378398?text=${encodeURIComponent(msg)}`);
+Products:
+`;
+
+  // BUY NOW
+  if(instantOrder){
+
+    msg +=
+`${instantOrder.name} - ₹${instantOrder.price}`;
+
+  }
+
+  // CART
+  else{
+
+    cart.forEach((p)=>{
+
+      msg += `${p.name} - ₹${p.price}\n`;
+
+    });
+
+  }
+
+  window.open(
+`https://wa.me/917558378398?text=${encodeURIComponent(msg)}`
+  );
+
+  instantOrder = null;
+
 }
 
-// ZOOM
+// IMAGE ZOOM
 function zoomImage(e){
-  let r=popupImg.getBoundingClientRect();
-  let x=(e.clientX-r.left)/r.width*100;
-  let y=(e.clientY-r.top)/r.height*100;
-  popupImg.style.transformOrigin=x+"% "+y+"%";
-  popupImg.style.transform="scale(2)";
+
+  let r =
+    popupImg.getBoundingClientRect();
+
+  let x =
+    (e.clientX-r.left)/r.width*100;
+
+  let y =
+    (e.clientY-r.top)/r.height*100;
+
+  popupImg.style.transformOrigin =
+    x+"% "+y+"%";
+
+  popupImg.style.transform =
+    "scale(2)";
+
 }
-function resetZoom(){ popupImg.style.transform="scale(1)"; }
+
+function resetZoom(){
+
+  popupImg.style.transform =
+    "scale(1)";
+
+}
 
 // INIT
 loadProducts();
