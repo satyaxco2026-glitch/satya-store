@@ -14,33 +14,63 @@
 
 <body class="bg-black text-white p-6">
 
-<h1 class="text-2xl mb-4">Admin Panel</h1>
+<h1 class="text-2xl mb-4">
+Admin Panel
+</h1>
 
 <!-- FORM -->
-<input id="name" placeholder="Product Name" class="w-full p-2 mb-2 text-black">
-<input id="price" placeholder="Price" class="w-full p-2 mb-2 text-black">
-<input id="category" placeholder="Category" class="w-full p-2 mb-4 text-black">
+<input id="name"
+placeholder="Product Name"
+class="w-full p-2 mb-2 text-black rounded">
+
+<input id="price"
+placeholder="Price"
+class="w-full p-2 mb-2 text-black rounded">
+
+<input id="category"
+placeholder="Category"
+class="w-full p-2 mb-4 text-black rounded">
 
 <div id="imageInputs">
-  <input type="file" class="mb-2"><br>
-  <input type="file" class="mb-2"><br>
+
+  <input type="file"
+  class="mb-2"><br>
+
+  <input type="file"
+  class="mb-2"><br>
+
 </div>
 
-<button onclick="addImageField()" class="bg-gray-700 px-4 py-2 mt-2">
+<button onclick="addImageField()"
+class="bg-gray-700 px-4 py-2 mt-2 rounded">
+
 + Add Image
+
 </button>
 
-<button onclick="uploadProduct()" class="bg-yellow-500 text-black px-6 py-2 mt-4">
+<br>
+
+<button onclick="uploadProduct()"
+class="bg-yellow-500 text-black px-6 py-2 mt-4 rounded">
+
 Upload Product
+
 </button>
 
-<button id="updateBtn" onclick="updateProduct()" class="bg-blue-500 px-6 py-2 mt-2 hidden">
+<button id="updateBtn"
+onclick="updateProduct()"
+class="bg-blue-500 px-6 py-2 mt-2 hidden rounded">
+
 Update Product
+
 </button>
 
 <hr class="my-6">
 
-<h2 class="text-xl mb-3">All Products</h2>
+<h2 class="text-xl mb-3">
+All Products
+</h2>
+
 <div id="productList"></div>
 
 <script>
@@ -53,175 +83,392 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+
 const db = firebase.firestore();
 
-// IMGBB API
-const API_KEY = "23cbe128f7c1d28acb2bb9dbeb33de71";
+// NEW IMGBB API
+const API_KEY =
+"143ce2b550f1b48fe3f14f91ffdbf9c5";
 
 // INPUTS
-const nameInput = document.getElementById("name");
-const priceInput = document.getElementById("price");
-const categoryInput = document.getElementById("category");
-const updateBtn = document.getElementById("updateBtn");
+const nameInput =
+document.getElementById("name");
+
+const priceInput =
+document.getElementById("price");
+
+const categoryInput =
+document.getElementById("category");
+
+const updateBtn =
+document.getElementById("updateBtn");
 
 let editId = null;
 
 // ADD IMAGE FIELD
 function addImageField(){
-  let div = document.getElementById("imageInputs");
-  let input = document.createElement("input");
+
+  let div =
+    document.getElementById("imageInputs");
+
+  let input =
+    document.createElement("input");
+
   input.type = "file";
+
   input.className = "mb-2";
+
   div.appendChild(input);
+
+  div.appendChild(document.createElement("br"));
+
 }
 
 // UPLOAD PRODUCT
 async function uploadProduct(){
 
-  let name = nameInput.value;
-  let price = priceInput.value;
-  let category = categoryInput.value;
+  let name =
+    nameInput.value.trim();
+
+  let price =
+    priceInput.value.trim();
+
+  let category =
+    categoryInput.value.trim();
+
+  // SECURITY
+  name = name.replace(/</g,"");
+  name = name.replace(/>/g,"");
 
   if(!name || !price || !category){
+
     alert("Fill all fields");
+
     return;
+
   }
 
-  let files = document.querySelectorAll("#imageInputs input[type=file]");
+  let files =
+    document.querySelectorAll(
+      "#imageInputs input[type=file]"
+    );
+
   let imageUrls = [];
 
-  for(let fileInput of files){
-    let file = fileInput.files[0];
-    if(!file) continue;
+  // CHECK IMAGE
+  let hasImage = false;
 
-    let formData = new FormData();
-    formData.append("image", file);
+  files.forEach((f)=>{
+    if(f.files[0]) hasImage = true;
+  });
 
-    let res = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, {
-      method: "POST",
-      body: formData
-    });
+  if(!hasImage){
 
-    let data = await res.json();
-    imageUrls.push(data.data.display_url);
+    alert("Select at least 1 image");
+
+    return;
+
   }
 
+  // UPLOAD LOOP
+  for(let fileInput of files){
+
+    let file = fileInput.files[0];
+
+    if(!file) continue;
+
+    try{
+
+      let formData =
+        new FormData();
+
+      formData.append("image", file);
+
+      let res = await fetch(
+`https://api.imgbb.com/1/upload?key=${API_KEY}`,
+      {
+        method:"POST",
+        body:formData
+      });
+
+      let data =
+        await res.json();
+
+      console.log(data);
+
+      // FAIL CHECK
+      if(!data.success){
+
+        alert("Image upload failed");
+
+        console.log(data);
+
+        return;
+
+      }
+
+      imageUrls.push(
+        data.data.display_url
+      );
+
+    }catch(err){
+
+      console.log(err);
+
+      alert("Upload error");
+
+      return;
+
+    }
+
+  }
+
+  // SAVE PRODUCT
   await db.collection("PRODUCTS").add({
-    name,
-    price: Number(price),
-    category: category.toLowerCase(),
-    images: imageUrls
+
+    name:name,
+
+    price:Number(price),
+
+    category:
+      category.toLowerCase(),
+
+    images:imageUrls
+
   });
 
   alert("Product Uploaded ✅");
+
   location.reload();
+
 }
 
 // LOAD PRODUCTS
 function loadProducts(){
-  const productList = document.getElementById("productList");
-  productList.innerHTML = "";
-  // ... rest of function
 
+  const productList =
+    document.getElementById("productList");
+
+  productList.innerHTML = "";
 
   db.collection("PRODUCTS").get().then((snap)=>{
+
     snap.forEach((doc)=>{
-      let p = doc.data();
+
+      let p =
+        doc.data();
 
       let imagesHTML = "";
 
-      p.images.forEach((img, index)=>{
+      // SAFETY
+      if(!p.images){
+        p.images = [];
+      }
+
+      p.images.forEach((img,index)=>{
+
         imagesHTML += `
+
           <div class="inline-block mr-2 text-center">
-            <img src="${img}" class="w-20 h-20 object-cover mb-1">
-            <button onclick="deleteImage('${doc.id}', ${index})"
-            class="text-red-400 text-xs">❌</button>
+
+            <img src="${img}"
+            class="w-20 h-20 object-cover rounded mb-1">
+
+            <button
+            onclick="deleteImage('${doc.id}',${index})"
+            class="text-red-400 text-xs">
+
+            ❌
+
+            </button>
+
           </div>
+
         `;
+
       });
 
       productList.innerHTML += `
-        <div class="border p-3 mb-4">
 
-          <h3>${p.name}</h3>
-          <p>₹${p.price}</p>
-          <p class="text-gray-400 text-sm">${p.category}</p>
+        <div class="border border-gray-700 p-3 mb-4 rounded">
 
-          <div class="mt-2">${imagesHTML}</div>
+          <h3 class="text-lg">
+            ${p.name}
+          </h3>
 
-          <button onclick="editProduct('${doc.id}', \`${p.name}\`, ${p.price}, \`${p.category}\`)"
-          class="bg-blue-500 px-3 py-1 mt-2">Edit</button>
+          <p>
+            ₹${p.price}
+          </p>
 
-          <button onclick="deleteProduct('${doc.id}')"
-          class="bg-red-500 px-3 py-1 mt-2">Delete</button>
+          <p class="text-gray-400 text-sm">
+            ${p.category}
+          </p>
+
+          <div class="mt-2">
+            ${imagesHTML}
+          </div>
+
+          <button
+          onclick="editProduct(
+            '${doc.id}',
+            \`${p.name}\`,
+            ${p.price},
+            \`${p.category}\`
+          )"
+          class="bg-blue-500 px-3 py-1 mt-2 rounded">
+
+          Edit
+
+          </button>
+
+          <button
+          onclick="deleteProduct('${doc.id}')"
+          class="bg-red-500 px-3 py-1 mt-2 rounded">
+
+          Delete
+
+          </button>
 
         </div>
+
       `;
+
     });
+
   });
+
 }
 
 // EDIT PRODUCT
-function editProduct(id, name, price, category){
+function editProduct(
+  id,
+  name,
+  price,
+  category
+){
 
   editId = id;
 
-  nameInput.value = name;
-  priceInput.value = price;
-  categoryInput.value = category;
+  nameInput.value =
+    name;
 
-  updateBtn.classList.remove("hidden");
+  priceInput.value =
+    price;
 
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  categoryInput.value =
+    category;
+
+  updateBtn.classList.remove(
+    "hidden"
+  );
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
 }
 
 // UPDATE PRODUCT
 function updateProduct(){
 
   if(!editId){
+
     alert("Select product first");
+
     return;
+
   }
 
-  db.collection("PRODUCTS").doc(editId).update({
-    name: nameInput.value,
-    price: Number(priceInput.value),
-    category: categoryInput.value
-  }).then(()=>{
+  let updatedName =
+    nameInput.value
+    .replace(/</g,"")
+    .replace(/>/g,"");
+
+  db.collection("PRODUCTS")
+  .doc(editId)
+  .update({
+
+    name:updatedName,
+
+    price:Number(priceInput.value),
+
+    category:
+      categoryInput.value.toLowerCase()
+
+  })
+
+  .then(()=>{
+
     alert("Updated ✅");
+
     location.reload();
+
   });
+
 }
 
 // DELETE PRODUCT
 function deleteProduct(id){
+
   if(confirm("Delete product?")){
-    db.collection("PRODUCTS").doc(id).delete().then(()=>{
+
+    db.collection("PRODUCTS")
+    .doc(id)
+    .delete()
+
+    .then(()=>{
+
       loadProducts();
+
     });
+
   }
+
 }
 
 // DELETE IMAGE
-function deleteImage(docId, index){
+function deleteImage(
+  docId,
+  index
+){
 
-  let ref = db.collection("PRODUCTS").doc(docId);
+  let ref =
+    db.collection("PRODUCTS")
+    .doc(docId);
 
   ref.get().then((doc)=>{
-    let data = doc.data();
-    let images = data.images;
+
+    let data =
+      doc.data();
+
+    let images =
+      data.images;
 
     if(images.length === 1){
-      alert("At least 1 image required");
+
+      alert(
+        "At least 1 image required"
+      );
+
       return;
+
     }
 
     images.splice(index,1);
 
-    ref.update({ images: images }).then(()=>{
+    ref.update({
+      images:images
+    })
+
+    .then(()=>{
+
       loadProducts();
+
     });
+
   });
+
 }
 
 // INIT

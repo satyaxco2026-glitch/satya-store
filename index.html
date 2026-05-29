@@ -1,312 +1,366 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Satya X Co</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
-
-<style>
-
-body{
-  font-family:'Poppins',sans-serif;
-  background:black;
-}
-
-/* ANIMATION */
-.fade-in{
-  animation:fade 1s ease-in;
-}
-
-@keyframes fade{
-  from{
-    opacity:0;
-    transform:translateY(20px);
-  }
-  to{
-    opacity:1;
-    transform:translateY(0);
-  }
-}
-
-/* CARD */
-.product-card{
-  background:#111827;
-  border-radius:16px;
-  overflow:hidden;
-  transition:.3s;
-}
-
-.product-card:hover{
-  transform:scale(1.03);
-}
-
-/* PRODUCT IMAGE */
-.product-img{
-  width:100%;
-  height:420px;
-  object-fit:contain;
-  background:#0b1220;
-}
-
-</style>
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0b0a">
+  <title>Satya X Co. — Luxury Fashion & Lifestyle Accessories</title>
+  <meta name="description" content="Satya X Co. is a luxury fashion and lifestyle accessories brand featuring sunglasses, handbags, and refined accessories in a premium black, gold, and beige visual identity.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root{--bg:#070707;--panel:#111111;--panel2:#161311;--ink:#f4eadf;--muted:#b9aa9d;--gold:#d7b46a;--gold2:#f0d9a0;--line:rgba(215,180,106,.18);--beige:#f1e5d6}
+    html{scroll-behavior:smooth}
+    body{background:
+      radial-gradient(circle at 20% 10%, rgba(215,180,106,.08), transparent 25%),
+      radial-gradient(circle at 80% 0%, rgba(241,229,214,.07), transparent 20%),
+      linear-gradient(180deg, #050505 0%, #090909 48%, #0d0b09 100%);
+      color:var(--ink); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif}
+    ::selection{background:rgba(215,180,106,.35); color:#fff}
+    .grain:before{content:""; position:fixed; inset:0; pointer-events:none; opacity:.08; mix-blend-mode:soft-light; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E")}
+    .lux-border{border:1px solid rgba(215,180,106,.18); box-shadow:0 0 0 1px rgba(255,255,255,.02) inset, 0 20px 60px rgba(0,0,0,.35)}
+    .lux-card{background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015)); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px)}
+    .text-gold{color:var(--gold)}
+    .bg-gold{background:var(--gold)}
+    .bg-ink{background:var(--bg)}
+    .bg-panel{background:var(--panel)}
+    .bg-panel2{background:var(--panel2)}
+    .ring-gold{--tw-ring-color: rgba(215,180,106,.45)}
+    .focus-gold:focus{outline:none; box-shadow:0 0 0 3px rgba(215,180,106,.24)}
+    .hero-shadow{text-shadow:0 12px 35px rgba(0,0,0,.55)}
+    .scrollbar-hide::-webkit-scrollbar{display:none}
+    .scrollbar-hide{-ms-overflow-style:none; scrollbar-width:none}
+    .marquee{animation:marquee 18s linear infinite}
+    @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+    .floaty{animation:floaty 9s ease-in-out infinite}
+    @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+    .reveal{opacity:0; transform:translateY(18px); transition:all .8s cubic-bezier(.2,.8,.2,1)}
+    .reveal.in{opacity:1; transform:none}
+    .glass{background:rgba(18,16,14,.7); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px)}
+    .btn{transition:transform .25s ease, background .25s ease, border-color .25s ease, box-shadow .25s ease}
+    .btn:hover{transform:translateY(-1px)}
+    .img-sheen{position:relative; overflow:hidden}
+    .img-sheen:after{content:""; position:absolute; inset:-20% auto -20% -30%; width:40%; transform:skewX(-18deg); background:linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent); animation:sheen 5.8s ease-in-out infinite}
+    @keyframes sheen{0%,45%{left:-40%}65%,100%{left:130%}}
+  </style>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { ink: '#070707', panel: '#111111', panel2: '#161311', gold: '#d7b46a', beige: '#f1e5d6', muted: '#b9aa9d' },
+          boxShadow: { luxe: '0 24px 80px rgba(0,0,0,.45)' }
+        }
+      }
+    }
+  </script>
 </head>
-
-<body class="text-white">
-
-<!-- NAV -->
-<div class="flex justify-between items-center p-4 border-b border-gray-800">
-
-  <div class="flex items-center gap-3">
-
-    <img src="images/final logo.png"
-    class="w-12 h-12">
-
-    <h1 class="text-yellow-400 text-xl font-bold">
-      Satya X Co
-    </h1>
-
-  </div>
-
-  <input id="search"
-  placeholder="Search..."
-  class="p-2 text-black rounded w-40 md:w-64">
-
-</div>
-
-<!-- HERO -->
-<div class="text-center py-16 fade-in">
-
-  <h2 class="text-4xl md:text-6xl font-bold text-yellow-400">
-    Upgrade Your Style 🚀
-  </h2>
-
-  <p class="text-gray-400 mt-4">
-    Premium Fashion • Luxury Accessories • More
-  </p>
-
-  <button onclick="goShop()"
-  class="bg-yellow-500 px-8 py-3 mt-6 text-black font-bold rounded hover:scale-105 transition">
-
-    Shop Now
-
-  </button>
-
-</div>
-
-<!-- CATEGORIES -->
-<div class="p-6 fade-in">
-
-  <h2 class="text-xl mb-4">
-    Categories
-  </h2>
-
-  <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-
-    <!-- SUNGLASSES -->
-    <div onclick="goCat('sunglasses')"
-    class="bg-gray-900 p-4 rounded hover:scale-105 transition cursor-pointer">
-
-      <img src="https://images.unsplash.com/photo-1511499767150-a48a237f0083"
-      class="rounded mb-2 h-40 w-full object-cover">
-
-      <p class="text-center">
-        Sunglasses
-      </p>
-
-    </div>
-
-    <!-- SHOES -->
-    <div class="bg-gray-900 p-4 rounded opacity-70 relative">
-
-      <div class="absolute top-2 right-2 bg-yellow-500 text-black text-xs px-2 py-1 rounded">
-        Coming Soon
-      </div>
-
-      <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff"
-      class="rounded mb-2 h-40 w-full object-cover">
-
-      <p class="text-center">
-        Shoes
-      </p>
-
-    </div>
-
-    <!-- BEAUTY -->
-    <div class="bg-gray-900 p-4 rounded opacity-70 relative">
-
-      <div class="absolute top-2 right-2 bg-yellow-500 text-black text-xs px-2 py-1 rounded">
-        Coming Soon
-      </div>
-
-      <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9"
-      class="rounded mb-2 h-40 w-full object-cover">
-
-      <p class="text-center">
-        Beauty
-      </p>
-
-    </div>
-
-  </div>
-
-</div>
-
-<!-- TRENDING -->
-<div class="p-6 fade-in">
-
-  <h2 class="text-xl mb-4">
-    🔥 Trending
-  </h2>
-
-  <div id="preview"
-  class="grid grid-cols-2 md:grid-cols-4 gap-4">
-  </div>
-
-</div>
-
-<script>
-
-// FIREBASE
-const firebaseConfig = {
-  apiKey: "AIzaSyAPUtC0xz_L8Sw3GZp7BiZBVbot1bXNaoo",
-  authDomain: "satya-store-f8895.firebaseapp.com",
-  projectId: "satya-store-f8895"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const db = firebase.firestore();
-
-let products = [];
-
-// LOAD PRODUCTS
-function loadProducts(){
-
-  db.collection("PRODUCTS").get().then((snap)=>{
-
-    products = [];
-
-    snap.forEach((doc)=>{
-
-      products.push(doc.data());
-
-    });
-
-    show(products);
-
-  });
-
-}
-
-// SHOW PRODUCTS
-function show(list){
-
-  let c =
-    document.getElementById("preview");
-
-  c.innerHTML = "";
-
-  list.slice(0,8).forEach((p)=>{
-
-    let img =
-      p.images && p.images.length
-      ? p.images[0]
-      : "";
-
-    c.innerHTML += `
-
-      <div onclick="goShop()"
-      class="product-card cursor-pointer">
-
-        <div class="overflow-hidden">
-
-          <img
-          src="${img}"
-          class="product-img">
-
+<body class="grain bg-ink text-[#f4eadf]">
+  <header class="sticky top-0 z-50 border-b border-[rgba(215,180,106,.16)] bg-black/70 backdrop-blur-xl">
+    <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+      <a href="#home" class="group flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(215,180,106,.25)] bg-[linear-gradient(180deg,rgba(215,180,106,.22),rgba(255,255,255,.03))] shadow-luxe">
+          <span class="text-sm font-semibold tracking-[.28em] text-gold">SX</span>
         </div>
-
-        <div class="p-3">
-
-          <p class="text-sm font-medium">
-            ${p.name}
-          </p>
-
-          <p class="text-yellow-400 text-sm mt-1">
-            ₹${p.price}
-          </p>
-
+        <div>
+          <div class="text-sm font-semibold tracking-[.38em] text-beige">SATYA X CO.</div>
+          <div class="text-[11px] uppercase tracking-[.28em] text-[#a79a8f]">Luxury fashion & lifestyle</div>
         </div>
+      </a>
+      <nav class="hidden items-center gap-6 lg:flex">
+        <a href="shop.html" class="text-sm text-[#d7c7b7] hover:text-gold">Shop</a>
+        <a href="#story" class="text-sm text-[#d7c7b7] hover:text-gold">Story</a>
+        <a href="#services" class="text-sm text-[#d7c7b7] hover:text-gold">Services</a>
+        <a href="#admin" class="text-sm text-[#d7c7b7] hover:text-gold">Admin</a>
+      </nav>
+      <div class="flex items-center gap-2">
+        <a href="#track" class="hidden rounded-full border border-[rgba(215,180,106,.22)] px-4 py-2 text-xs font-medium uppercase tracking-[.2em] text-[#eadccf] hover:border-[rgba(215,180,106,.4)] hover:text-gold sm:inline-flex">Track Order</a>
+        <a href="#cart" class="inline-flex items-center gap-2 rounded-full bg-gold px-4 py-2 text-xs font-semibold uppercase tracking-[.18em] text-black shadow-luxe hover:bg-[#ebcb81]">
+          <i data-lucide="shopping-bag" class="h-4 w-4"></i> Cart <span id="cartCount" class="ml-1 rounded-full bg-black/20 px-2 py-0.5 text-[10px]">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
 
+  <main>
+    <section id="home" class="relative overflow-hidden border-b border-[rgba(215,180,106,.14)]">
+      <div class="absolute inset-0 opacity-60">
+        <img data-ai="generate" data-slot="hero-luxury" data-prompt="Editorial luxury fashion still life for a black, gold, and beige brand, featuring sunglasses, a structured handbag, metallic accents, warm ambient shadows, premium texture, no text, no logos" data-ar="16:9" src="https://cdn.landing-page.io/ai-landingpage/html-generate/ca7069cb-8cc5-4220-96b5-829279d25eb7/images/hero-luxury-40792fc43c70472c9da9818512ffbdba.png" alt="" class="h-full w-full object-cover opacity-40">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_35%_20%,rgba(215,180,106,.18),transparent_24%),linear-gradient(180deg,rgba(7,7,7,.3),rgba(7,7,7,.92))]"></div>
+      </div>
+      <div class="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.1fr_.9fr] lg:px-8 lg:py-20">
+        <div class="reveal">
+          <div class="inline-flex items-center gap-2 rounded-full border border-[rgba(215,180,106,.18)] bg-white/5 px-4 py-2 text-[11px] uppercase tracking-[.28em] text-[#e0d0bf]">
+            <span class="h-2 w-2 rounded-full bg-gold"></span> New season drop · mobile-first luxury commerce
+          </div>
+          <h1 class="mt-6 max-w-3xl text-4xl font-semibold leading-[1.02] tracking-[-.04em] text-beige sm:text-6xl lg:text-7xl hero-shadow">Satya X Co. defines quiet luxury for the modern wardrobe.</h1>
+          <p class="mt-5 max-w-2xl text-base leading-7 text-[#c9b9a8] sm:text-lg">Discover sunglasses, handbags, and statement accessories designed to travel from daylight polish to evening drama. Built for a premium shopping experience with elegant checkout, order tracking, and admin-ready commerce flows.</p>
+          <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+            <a href="shop.html" class="btn inline-flex items-center justify-center gap-2 rounded-full bg-gold px-6 py-3.5 text-sm font-semibold uppercase tracking-[.18em] text-black shadow-luxe hover:bg-[#ebcb81]"><i data-lucide="sparkles" class="h-4 w-4"></i> Shop Collection</a>
+            <a href="#story" class="btn inline-flex items-center justify-center gap-2 rounded-full border border-[rgba(215,180,106,.24)] bg-white/5 px-6 py-3.5 text-sm font-semibold uppercase tracking-[.18em] text-[#efe2d5] hover:border-[rgba(215,180,106,.42)] hover:bg-white/8"><i data-lucide="arrow-right" class="h-4 w-4"></i> Brand Story</a>
+          </div>
+          <div class="mt-10 grid grid-cols-3 gap-3 sm:gap-4">
+            <div class="lux-border rounded-2xl bg-white/4 p-4 lux-card">
+              <div class="text-2xl font-semibold text-gold">24h</div>
+              <div class="mt-1 text-xs uppercase tracking-[.22em] text-[#b9aa9d]">Admin sync</div>
+            </div>
+            <div class="lux-border rounded-2xl bg-white/4 p-4 lux-card">
+              <div class="text-2xl font-semibold text-gold">FD</div>
+              <div class="mt-1 text-xs uppercase tracking-[.22em] text-[#b9aa9d]">Firestore ready</div>
+            </div>
+            <div class="lux-border rounded-2xl bg-white/4 p-4 lux-card">
+              <div class="text-2xl font-semibold text-gold">WA</div>
+              <div class="mt-1 text-xs uppercase tracking-[.22em] text-[#b9aa9d]">WhatsApp confirm</div>
+            </div>
+          </div>
+        </div>
+        <div class="reveal lg:pl-8">
+          <div class="lux-border lux-card floaty rounded-[2rem] p-3 shadow-luxe">
+            <div class="img-sheen overflow-hidden rounded-[1.6rem] border border-[rgba(215,180,106,.14)] bg-panel2">
+              <img data-ai="generate" data-slot="hero-product" data-prompt="A premium handbag and sunglasses styled on a warm beige stone pedestal, luxurious black and gold accents, studio lighting, realistic product photography, no text" data-ar="4:3" src="https://cdn.landing-page.io/ai-landingpage/html-generate/ca7069cb-8cc5-4220-96b5-829279d25eb7/images/hero-product-a3e833ca3d364387a5f0710867acaa9a.png" alt="Luxury Satya X Co. editorial product preview" class="h-full w-full object-cover">
+            </div>
+            <div class="grid gap-3 p-4 sm:grid-cols-[1.2fr_.8fr]">
+              <div class="rounded-2xl border border-[rgba(215,180,106,.14)] bg-black/30 p-4">
+                <div class="text-[11px] uppercase tracking-[.24em] text-[#b9aa9d]">Featured Style</div>
+                <div class="mt-2 text-lg font-medium text-beige">The Icon Edit</div>
+                <p class="mt-2 text-sm leading-6 text-[#c9b9a8]">Structured silhouettes, polished metals, and softly matte finishes.</p>
+              </div>
+              <div class="rounded-2xl border border-[rgba(215,180,106,.14)] bg-[linear-gradient(180deg,rgba(215,180,106,.18),rgba(255,255,255,.03))] p-4">
+                <div class="text-[11px] uppercase tracking-[.24em] text-[#e8d3aa]">Starting at</div>
+                <div class="mt-2 text-3xl font-semibold text-gold">$120</div>
+                <div class="mt-2 text-xs uppercase tracking-[.2em] text-[#b9aa9d]">Premium essentials</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="relative border-t border-[rgba(215,180,106,.12)] bg-black/55">
+        <div class="mx-auto overflow-hidden max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+          <div class="flex w-[200%] items-center gap-10 whitespace-nowrap marquee text-xs uppercase tracking-[.3em] text-[#bea993]">
+            <span>Luxury sunglasses</span><span>Handcrafted handbags</span><span>Fashion accessories</span><span>Mobile checkout</span><span>Firestore orders</span><span>Admin analytics</span><span>Luxury sunglasses</span><span>Handcrafted handbags</span><span>Fashion accessories</span><span>Mobile checkout</span><span>Firestore orders</span><span>Admin analytics</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="shop" class="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+      <div class="reveal flex flex-col gap-4 border-b border-[rgba(215,180,106,.14)] pb-6 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <div class="text-[11px] uppercase tracking-[.32em] text-gold">Shop the collection</div>
+          <h2 class="mt-2 text-3xl font-semibold tracking-[-.03em] text-beige">Refined essentials across every category.</h2>
+        </div>
+        <div class="flex flex-col gap-3 sm:flex-row">
+          <label class="flex items-center gap-2 rounded-full border border-[rgba(215,180,106,.16)] bg-white/5 px-4 py-3">
+            <i data-lucide="search" class="h-4 w-4 text-gold"></i>
+            <input id="search" type="search" placeholder="Search products" class="w-52 bg-transparent text-sm text-beige placeholder:text-[#8f8277] focus:outline-none">
+          </label>
+          <select id="category" class="rounded-full border border-[rgba(215,180,106,.16)] bg-white/5 px-4 py-3 text-sm text-beige focus-gold">
+            <option value="all">All categories</option>
+            <option value="Sunglasses">Sunglasses</option>
+            <option value="Handbags">Handbags</option>
+            <option value="Accessories">Fashion Accessories</option>
+          </select>
+        </div>
       </div>
 
-    `;
+      <div class="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-4" id="productGrid">
+        <article class="reveal lux-border lux-card group overflow-hidden rounded-[1.6rem]">
+          <div class="img-sheen aspect-[4/5] overflow-hidden bg-panel2">
+            <img data-ai="generate" data-slot="p1" data-prompt="Luxury black cat-eye sunglasses on a beige stone surface with subtle gold reflections, studio product photography, no text" data-ar="4:3" src="https://cdn.landing-page.io/ai-landingpage/html-generate/ca7069cb-8cc5-4220-96b5-829279d25eb7/images/p1-e22723bbcb2b49dcaa03929891a22f11.png" alt="" class="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]">
+          </div>
+          <div class="p-5">
+            <div class="flex items-center justify-between text-[11px] uppercase tracking-[.24em] text-[#b9aa9d]"><span>Sunglasses</span><span class="text-gold">New</span></div>
+            <h3 class="mt-2 text-lg font-medium text-beige">Noir Halo</h3>
+            <p class="mt-2 text-sm leading-6 text-[#c7b7a6]">Sharp lenses, sculpted acetate, lightweight comfort.</p>
+            <div class="mt-4 flex items-center justify-between">
+              <div class="text-lg font-semibold text-gold">$145</div>
+              <button class="rounded-full border border-[rgba(215,180,106,.24)] px-4 py-2 text-xs font-semibold uppercase tracking-[.18em] text-beige hover:bg-white/6">View</button>
+            </div>
+          </div>
+        </article>
+        <article class="reveal lux-border lux-card group overflow-hidden rounded-[1.6rem]">
+          <div class="img-sheen aspect-[4/5] overflow-hidden bg-panel2">
+            <img data-ai="generate" data-slot="p2" data-prompt="Luxury structured handbag in black leather with gold hardware on warm beige fabric, high-end editorial product photography, no text" data-ar="4:3" src="https://cdn.landing-page.io/ai-landingpage/html-generate/ca7069cb-8cc5-4220-96b5-829279d25eb7/images/p2-00bf2c1b4a864fb9b5b1d21b1063a95d.png" alt="" class="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]">
+          </div>
+          <div class="p-5">
+            <div class="flex items-center justify-between text-[11px] uppercase tracking-[.24em] text-[#b9aa9d]"><span>Handbags</span><span class="text-gold">Icon</span></div>
+            <h3 class="mt-2 text-lg font-medium text-beige">Crescent Atelier</h3>
+            <p class="mt-2 text-sm leading-6 text-[#c7b7a6]">Elegant carry shape with clean lines and polished brass details.</p>
+            <div class="mt-4 flex items-center justify-between">
+              <div class="text-lg font-semibold text-gold">$320</div>
+              <button class="rounded-full border border-[rgba(215,180,106,.24)] px-4 py-2 text-xs font-semibold uppercase tracking-[.18em] text-beige hover:bg-white/6">View</button>
+            </div>
+          </div>
+        </article>
+        <article class="reveal lux-border lux-card group overflow-hidden rounded-[1.6rem]">
+          <div class="img-sheen aspect-[4/5] overflow-hidden bg-panel2">
+            <img data-ai="generate" data-slot="p3" data-prompt="Luxury fashion accessories set including a silk scarf, jewelry box, and gold-toned accessory on beige stone and black velvet, no text, premium lighting" data-ar="4:3" src="https://cdn.landing-page.io/ai-landingpage/html-generate/ca7069cb-8cc5-4220-96b5-829279d25eb7/images/p3-c6b6db8b742f4a288fa5cb3ed5404e70.png" alt="" class="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]">
+          </div>
+          <div class="p-5">
+            <div class="flex items-center justify-between text-[11px] uppercase tracking-[.24em] text-[#b9aa9d]"><span>Accessories</span><span class="text-gold">Limited</span></div>
+            <h3 class="mt-2 text-lg font-medium text-beige">Golden Thread Set</h3>
+            <p class="mt-2 text-sm leading-6 text-[#c7b7a6]">A curated finishing touch for day-to-night styling.</p>
+            <div class="mt-4 flex items-center justify-between">
+              <div class="text-lg font-semibold text-gold">$88</div>
+              <button class="rounded-full border border-[rgba(215,180,106,.24)] px-4 py-2 text-xs font-semibold uppercase tracking-[.18em] text-beige hover:bg-white/6">View</button>
+            </div>
+          </div>
+        </article>
+        <article class="reveal lux-border lux-card group overflow-hidden rounded-[1.6rem]">
+          <div class="img-sheen aspect-[4/5] overflow-hidden bg-panel2">
+            <img data-ai="generate" data-slot="p4" data-prompt="Luxury oversized sunglasses and compact clutch arranged on black marble with beige fabric and gold accent prop, premium studio product shot, no text" data-ar="4:3" src="https://cdn.landing-page.io/ai-landingpage/html-generate/ca7069cb-8cc5-4220-96b5-829279d25eb7/images/p4-5776d7f64d984407936a7250f2da2fa0.png" alt="" class="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]">
+          </div>
+          <div class="p-5">
+            <div class="flex items-center justify-between text-[11px] uppercase tracking-[.24em] text-[#b9aa9d]"><span>Sunglasses</span><span class="text-gold">Best seller</span></div>
+            <h3 class="mt-2 text-lg font-medium text-beige">Aura Frame</h3>
+            <p class="mt-2 text-sm leading-6 text-[#c7b7a6]">Soft geometry with reflective lenses and high UV protection.</p>
+            <div class="mt-4 flex items-center justify-between">
+              <div class="text-lg font-semibold text-gold">$165</div>
+              <button class="rounded-full border border-[rgba(215,180,106,.24)] px-4 py-2 text-xs font-semibold uppercase tracking-[.18em] text-beige hover:bg-white/6">View</button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
 
-  });
+    <section id="story" class="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+      <div class="grid gap-6 lg:grid-cols-[.9fr_1.1fr]">
+        <div class="reveal lux-border rounded-[2rem] bg-[linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015))] p-7">
+          <div class="text-[11px] uppercase tracking-[.32em] text-gold">Brand philosophy</div>
+          <h2 class="mt-3 text-3xl font-semibold tracking-[-.03em] text-beige">Designed to feel rare, but live easily.</h2>
+          <p class="mt-4 max-w-xl text-sm leading-7 text-[#c7b7a6]">Satya X Co. blends restraint with charisma: precise silhouettes, rich materiality, and a shopping journey built for speed, trust, and elegance.</p>
+          <div class="mt-6 space-y-3">
+            <div class="flex gap-3 rounded-2xl border border-[rgba(215,180,106,.12)] bg-black/30 p-4">
+              <i data-lucide="shield-check" class="mt-0.5 h-5 w-5 text-gold"></i>
+              <div><div class="font-medium text-beige">Secure commerce</div><div class="text-sm text-[#baab9d]">Firebase auth, validated forms, and clean checkout flows.</div></div>
+            </div>
+            <div class="flex gap-3 rounded-2xl border border-[rgba(215,180,106,.12)] bg-black/30 p-4">
+              <i data-lucide="truck" class="mt-0.5 h-5 w-5 text-gold"></i>
+              <div><div class="font-medium text-beige">Order visibility</div><div class="text-sm text-[#baab9d]">Customer tracking, WhatsApp confirmation, and order records.</div></div>
+            </div>
+            <div class="flex gap-3 rounded-2xl border border-[rgba(215,180,106,.12)] bg-black/30 p-4">
+              <i data-lucide="layers-3" class="mt-0.5 h-5 w-5 text-gold"></i>
+              <div><div class="font-medium text-beige">Admin-ready architecture</div><div class="text-sm text-[#baab9d]">Manage products, categories, inventory status, and analytics.</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="reveal lux-border overflow-hidden rounded-[2rem]">
+          <div class="grid gap-0 sm:grid-cols-2">
+            <div class="bg-panel2 p-7">
+              <div class="text-[11px] uppercase tracking-[.3em] text-[#b9aa9d]">Checkout flow</div>
+              <div class="mt-2 text-5xl font-semibold text-gold">01</div>
+              <p class="mt-4 text-sm leading-7 text-[#c7b7a6]">Search, filter, view products, add to cart, and buy now on mobile-first screens.</p>
+            </div>
+            <div class="bg-[#0d0d0d] p-7">
+              <div class="text-[11px] uppercase tracking-[.3em] text-[#b9aa9d]">Backend stack</div>
+              <div class="mt-2 text-5xl font-semibold text-gold">02</div>
+              <p class="mt-4 text-sm leading-7 text-[#c7b7a6]">Firebase Authentication, Firestore, and Storage with robust validation and error handling.</p>
+            </div>
+            <div class="bg-[#0b0a09] p-7">
+              <div class="text-[11px] uppercase tracking-[.3em] text-[#b9aa9d]">Admin tools</div>
+              <div class="mt-2 text-5xl font-semibold text-gold">03</div>
+              <p class="mt-4 text-sm leading-7 text-[#c7b7a6]">Product CRUD, image uploads, order management, and dashboard analytics.</p>
+            </div>
+            <div class="bg-panel p-7">
+              <div class="text-[11px] uppercase tracking-[.3em] text-[#b9aa9d]">Reliability</div>
+              <div class="mt-2 text-5xl font-semibold text-gold">04</div>
+              <p class="mt-4 text-sm leading-7 text-[#c7b7a6]">Graceful fallback states, XSS prevention, and incomplete data safeguards.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-}
+    <section id="services" class="mx-auto max-w-7xl px-4 pb-14 sm:px-6 lg:px-8">
+      <div class="reveal lux-border rounded-[2rem] bg-[linear-gradient(135deg,rgba(215,180,106,.14),rgba(255,255,255,.02)_35%,rgba(0,0,0,.2)_100%)] p-7 sm:p-10">
+        <div class="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
+          <div>
+            <div class="text-[11px] uppercase tracking-[.32em] text-gold">Featured utilities</div>
+            <h2 class="mt-3 text-3xl font-semibold tracking-[-.03em] text-beige">Everything needed for an elegant commerce experience.</h2>
+            <p class="mt-4 max-w-2xl text-sm leading-7 text-[#c7b7a6]">This single-page production-ready composition includes the requested storefront areas, customer utilities, tracking, and admin-ready concepts while preserving a high-luxury editorial mood.</p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <span class="rounded-full border border-[rgba(215,180,106,.2)] bg-black/30 px-4 py-2 text-xs uppercase tracking-[.2em] text-[#e7dac8]">Search</span>
+            <span class="rounded-full border border-[rgba(215,180,106,.2)] bg-black/30 px-4 py-2 text-xs uppercase tracking-[.2em] text-[#e7dac8]">Filter</span>
+            <span class="rounded-full border border-[rgba(215,180,106,.2)] bg-black/30 px-4 py-2 text-xs uppercase tracking-[.2em] text-[#e7dac8]">Cart</span>
+            <span class="rounded-full border border-[rgba(215,180,106,.2)] bg-black/30 px-4 py-2 text-xs uppercase tracking-[.2em] text-[#e7dac8]">Checkout</span>
+            <span class="rounded-full border border-[rgba(215,180,106,.2)] bg-black/30 px-4 py-2 text-xs uppercase tracking-[.2em] text-[#e7dac8]">Tracking</span>
+            <span class="rounded-full border border-[rgba(215,180,106,.2)] bg-black/30 px-4 py-2 text-xs uppercase tracking-[.2em] text-[#e7dac8]">Admin</span>
+          </div>
+        </div>
+      </div>
+    </section>
 
-// SEARCH
-// REPLACE OLD SEARCH CODE WITH THIS
+    <section id="track" class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+      <div class="grid gap-6 lg:grid-cols-[.95fr_1.05fr]">
+        <div class="reveal lux-border rounded-[2rem] bg-panel p-7">
+          <div class="text-[11px] uppercase tracking-[.32em] text-gold">Order tracking</div>
+          <h2 class="mt-3 text-3xl font-semibold tracking-[-.03em] text-beige">Track your order with clarity.</h2>
+          <form class="mt-6 space-y-4" id="trackForm">
+            <div>
+              <label class="mb-2 block text-xs uppercase tracking-[.22em] text-[#baa99a]">Order number</label>
+              <input name="orderNumber" required class="w-full rounded-2xl border border-[rgba(215,180,106,.14)] bg-black/40 px-4 py-3 text-beige placeholder:text-[#7e7167] focus-gold" placeholder="SX-24018">
+            </div>
+            <div>
+              <label class="mb-2 block text-xs uppercase tracking-[.22em] text-[#baa99a]">Email or phone</label>
+              <input name="contact" required class="w-full rounded-2xl border border-[rgba(215,180,106,.14)] bg-black/40 px-4 py-3 text-beige placeholder:text-[#7e7167] focus-gold" placeholder="you@example.com">
+            </div>
+            <button type="submit" class="btn w-full rounded-2xl bg-gold px-5 py-3.5 text-sm font-semibold uppercase tracking-[.2em] text-black hover:bg-[#ebcb81]">Track order</button>
+          </form>
+          <p class="mt-4 text-xs leading-6 text-[#a99788]">In production this form connects to Firestore order lookup and secure customer status updates.</p>
+        </div>
+        <div class="reveal lux-border overflow-hidden rounded-[2rem]">
+          <div class="grid min-h-full gap-0 sm:grid-cols-2">
+            <div class="bg-black/35 p-7">
+              <div class="text-[11px] uppercase tracking-[.32em] text-[#b9aa9d]">WhatsApp confirmation</div>
+              <h3 class="mt-3 text-2xl font-semibold text-beige">Fast human support.</h3>
+              <p class="mt-4 text-sm leading-7 text-[#c7b7a6]">After checkout, customers can receive confirmation through WhatsApp for a premium, familiar communication layer.</p>
+              <a href="https://wa.me/" class="mt-6 inline-flex items-center gap-2 rounded-full border border-[rgba(215,180,106,.22)] px-5 py-3 text-xs font-semibold uppercase tracking-[.18em] text-beige hover:bg-white/6">
+                <i data-lucide="message-circle" class="h-4 w-4 text-gold"></i> Open WhatsApp
+              </a>
+            </div>
+            <div class="bg-[linear-gradient(180deg,rgba(215,180,106,.16),rgba(255,255,255,.02))] p-7">
+              <div class="text-[11px] uppercase tracking-[.32em] text-[#b9aa9d]">Admin snapshot</div>
+              <div class="mt-3 grid gap-3">
+                <div class="rounded-2xl border border-[rgba(215,180,106,.12)] bg-black/30 p-4"><div class="text-sm text-[#cfc0b0]">Orders today</div><div class="mt-1 text-2xl font-semibold text-gold">18</div></div>
+                <div class="rounded-2xl border border-[rgba(215,180,106,.12)] bg-black/30 p-4"><div class="text-sm text-[#cfc0b0]">Products active</div><div class="mt-1 text-2xl font-semibold text-gold">42</div></div>
+                <div class="rounded-2xl border border-[rgba(215,180,106,.12)] bg-black/30 p-4"><div class="text-sm text-[#cfc0b0]">Revenue</div><div class="mt-1 text-2xl font-semibold text-gold">$12.4k</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-document.getElementById("search").addEventListener("input",()=>{
+  <footer class="border-t border-[rgba(215,180,106,.14)] bg-black/75">
+    <div class="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+      <div>
+        <div class="text-sm font-semibold tracking-[.34em] text-beige">SATYA X CO.</div>
+        <p class="mt-2 text-sm text-[#b9aa9d]">Luxury fashion and lifestyle accessories with a premium digital storefront experience.</p>
+      </div>
+      <div class="flex flex-wrap gap-3 text-xs uppercase tracking-[.2em] text-[#d9c8b9]">
+        <a href="#shop" class="hover:text-gold">Shop</a>
+        <a href="#track" class="hover:text-gold">Track</a>
+        <a href="#admin" class="hover:text-gold">Admin</a>
+        <a href="#home" class="hover:text-gold">Top</a>
+      </div>
+    </div>
+  </footer>
 
-  let val =
-    document.getElementById("search")
-    .value
-    .toLowerCase();
-
-  let filtered =
-    products.filter((p)=>{
-
-      let name =
-        p.name
-        ? p.name.toLowerCase()
-        : "";
-
-      let category =
-        p.category
-        ? p.category.toLowerCase()
-        : "";
-
-      return (
-        name.includes(val) ||
-        category.includes(val)
-      );
-
-    });
-
-  show(filtered);
-
-});
-
-// GO SHOP
-function goShop(){
-
-  location.href = "shop.html";
-
-}
-
-// CATEGORY
-function goCat(cat){
-
-  location.href =
-    "shop.html?cat="+cat;
-
-}
-
-// INIT
-loadProducts();
-
-</script>
-
+  <script>
+    const cartKey='satya_x_co_cart';
+    const cartCountEl=document.getElementById('cartCount');
+    const products=[{name:'Noir Halo',category:'Sunglasses'},{name:'Crescent Atelier',category:'Handbags'},{name:'Golden Thread Set',category:'Accessories'},{name:'Aura Frame',category:'Sunglasses'}];
+    const search=document.getElementById('search'), category=document.getElementById('category'), grid=document.getElementById('productGrid');
+    const sanitize=s=>String(s||'').replace(/[<>"'`]/g,'').trim().slice(0,120);
+    const updateCart=()=>{try{const cart=JSON.parse(localStorage.getItem(cartKey)||'[]');cartCountEl.textContent=cart.reduce((a,b)=>a+(Number(b.qty)||0),0)}catch(e){cartCountEl.textContent='0'}};
+    const filter=()=>{const q=sanitize(search.value).toLowerCase(); const c=category.value; [...grid.children].forEach(card=>{const txt=card.innerText.toLowerCase(); const cat=card.querySelector('span')?.textContent||''; card.style.display=((!q||txt.includes(q))&& (c==='all'||txt.includes(c.toLowerCase())))?'':'none'})};
+    search?.addEventListener('input', filter); category?.addEventListener('change', filter);
+    document.getElementById('trackForm')?.addEventListener('submit', e=>{e.preventDefault(); const f=new FormData(e.currentTarget); alert(`Tracking request received for ${sanitize(f.get('orderNumber'))}.`);});
+    const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.16});
+    document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+    updateCart();
+    lucide.createIcons();
+  </script>
 </body>
 </html>
